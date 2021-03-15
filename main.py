@@ -27,9 +27,12 @@ stars = pyglet.graphics.Batch()
 mainBody = pyglet.graphics.Batch()
 orbitingBody = pyglet.graphics.Batch()
 
-
+r = 2 * [None]
+v = 2 * [None]
 orbitingBodyR = 2 * [None]
 orbitingBodyV = 2 * [None]
+accel1 = 2 * [None]
+accel2 = 2 * [None]
 
 DU = 100
 #  696,340km = 100 pixels
@@ -38,6 +41,9 @@ DU = 100
 
 # 0.393 pixels^3/s^2
 mu = 0.39304
+G = 1/5
+mass1 = 17000
+mass2 = 58
 
 pressLocX = 0
 pressLocY = 0
@@ -65,38 +71,34 @@ orbitBodyShape = shapes.Circle(
 
 
 def updateOrbitBody(dt):
-    delTime = 1/120
-    global orbitingBodyR
-    global orbitingBodyV
-    rdot = 2 * [None]
-    r = 2 * [None]
-    if (not started):
-        return
-    rddot = calcAcceleration(orbitingBodyR)
-    print(rddot)
-    rdot[0] = (rddot[0] * delTime) + orbitingBodyV[0]
-    rdot[1] = (rddot[1] * delTime) + orbitingBodyV[1]
-    r[0] = (rdot[0] * delTime) + orbitingBodyR[0]
-    r[1] = (rdot[0] * delTime) + orbitingBodyR[0]
+    Force = calcForce(r)
 
-    orbitingBodyV[0] = rdot[0]
-    orbitingBodyV[1] = rdot[1]
+    accel1[0] = Force/mass1 * r[0]/normVect(r)
+    accel1[1] = Force/mass1 * r[1]/normVect(r)
 
-    orbitingBodyR[0] = r[0]
-    orbitingBodyR[1] = r[1]
+    accel2[0] = -Force/mass2 * r[0]/normVect(r)
+    accel2[1] = -Force/mass2 * r[1]/normVect(r)
 
-    orbitBodyShape.x = orbitingBodyR[0] * DU + originLocation[0]
-    orbitBodyShape.y = orbitingBodyR[1] * DU + originLocation[1]
+    orbitingBodyV[0] += (accel2[0] * dt)
+    orbitingBodyV[1] += (accel2[1] * dt)
 
+    orbitingBodyR[0] = (orbitingBodyV[0] * dt) + orbitingBodyR[0]
+    orbitingBodyR[1] = (orbitingBodyV[1] * dt) + orbitingBodyR[1]
+
+    orbitBodyShape.x = orbitingBodyR[0]
+    orbitBodyShape.y = orbitingBodyR[1]
+
+    r[0] = orbitingBodyR[0] - originLocation[0]
+    r[1] = orbitingBodyR[1] - originLocation[1]
+
+    pass
     # this is where we integrate
 
 
-def calcAcceleration(r):
-    rddot = 2 * [None]
+def calcForce(r):
     normR = normVect(r)
-    rddot[0] = -mu * r[0]/(normR*normR*normR)
-    rddot[1] = -mu * r[1]/(normR*normR*normR)
-    return rddot
+    return G * mass1 * mass2 / (normR * normR)
+    
 
 
 @window.event
@@ -105,7 +107,7 @@ def on_draw():
     stars.draw()
     mainBodyShape.draw()
     orbitBodyShape.draw()
-    if orbitingBodyV[0] != None:
+    if v[0] != None:
         pyglet.clock.schedule_interval(updateOrbitBody, 1/120)
 
 
@@ -116,42 +118,31 @@ def on_mouse_press(x, y, button, modifiers):
     print(y)
     print("")
 
-    global pressLocX
-    global pressLocY
-    global orbitingBodyR
-    global orbitingBodyV
-    if orbitingBodyR[0] == None:
-        orbitingBodyR[0] = (x - originLocation[0])/DU
-        orbitingBodyR[1] = (y - originLocation[1])/DU
-        orbitBodyShape.x = x
-        orbitBodyShape.y = y
-        orbitBodyShape.color = BLUE
-        pressLocX = x
-        pressLocY = y
+    orbitingBodyR[0] = x
+    orbitingBodyR[1] = y
 
-    else:
-        pass
+    r[0] = orbitingBodyR[0] - originLocation[0]
+    r[1] = orbitingBodyR[1] - originLocation[1]
+
+    orbitBodyShape.x = x
+    orbitBodyShape.y = y
+    orbitBodyShape.color = BLUE
+
 
 
 @window.event
 def on_mouse_release(x, y, button, modifiers):
-    global pressLocX
-    global pressLocY
-    global started
-    global orbitingBodyR
-    global orbitingBodyV
+
     print("on release")
     print(x)
     print(y)
     print("")
 
-    if orbitingBodyV[0] == None:
-        orbitingBodyV[0] = (pressLocX - x)/DU
-        orbitingBodyV[1] = (pressLocY - y)/DU
+    orbitingBodyV[0] = (orbitingBodyR[0] - x)/50
+    orbitingBodyV[1] = (orbitingBodyR[1] - y)/50
 
-        # print(orbitingBodyV)
-        started = True
-    pass
+    v[0] = orbitingBodyV[0]
+    v[1] = orbitingBodyV[1]
 
 
 # @window.event
