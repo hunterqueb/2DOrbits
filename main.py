@@ -82,8 +82,8 @@ def updateOrbitBody(dt):
     orbitingBodyV[0] += (accel2[0] * dt)
     orbitingBodyV[1] += (accel2[1] * dt)
 
-    orbitingBodyR[0] = (orbitingBodyV[0] * dt) + orbitingBodyR[0]
-    orbitingBodyR[1] = (orbitingBodyV[1] * dt) + orbitingBodyR[1]
+    orbitingBodyR[0] += (orbitingBodyV[0] * dt)
+    orbitingBodyR[1] += (orbitingBodyV[1] * dt)
 
     orbitBodyShape.x = orbitingBodyR[0]
     orbitBodyShape.y = orbitingBodyR[1]
@@ -91,6 +91,7 @@ def updateOrbitBody(dt):
     r[0] = orbitingBodyR[0] - originLocation[0]
     r[1] = orbitingBodyR[1] - originLocation[1]
 
+    # print(normVect(orbitingBodyV))
     pass
     # this is where we integrate
 
@@ -108,7 +109,7 @@ def on_draw():
     mainBodyShape.draw()
     orbitBodyShape.draw()
     if v[0] != None:
-        pyglet.clock.schedule_interval(updateOrbitBody, 1/120)
+        pyglet.clock.schedule_interval(updateOrbitBody, 1/60)
 
 
 @window.event
