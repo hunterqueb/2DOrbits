@@ -41,8 +41,10 @@ DU = 100
 
 # 0.393 pixels^3/s^2
 mu = 0.39304
-G = 1/5
-mass1 = 17000
+
+
+G = 1/50
+mass1 = 170000
 mass2 = 58
 
 pressLocX = 0
@@ -62,7 +64,7 @@ for i in range(numStars):
 # # # # # GENERATE MAIN BODY # # # # #
 
 mainBodyShape = shapes.Circle(
-    x=originLocation[0], y=originLocation[1], radius=DU, color=STAR_COLOR, batch=mainBody)
+    x=originLocation[0], y=originLocation[1], radius=78, color=STAR_COLOR, batch=mainBody)
 
 # # # # # GENERATE ORBITING BODY # # # # #
 # initialize the body
@@ -114,10 +116,10 @@ def on_draw():
 
 @window.event
 def on_mouse_press(x, y, button, modifiers):
-    print("on press")
-    print(x)
-    print(y)
-    print("")
+    # print("on press")
+    # print(x)
+    # print(y)
+    # print("")
 
     orbitingBodyR[0] = x
     orbitingBodyR[1] = y
@@ -134,10 +136,10 @@ def on_mouse_press(x, y, button, modifiers):
 @window.event
 def on_mouse_release(x, y, button, modifiers):
 
-    print("on release")
-    print(x)
-    print(y)
-    print("")
+    # print("on release")
+    # print(x)
+    # print(y)
+    # print("")
 
     orbitingBodyV[0] = (orbitingBodyR[0] - x)/50
     orbitingBodyV[1] = (orbitingBodyR[1] - y)/50
